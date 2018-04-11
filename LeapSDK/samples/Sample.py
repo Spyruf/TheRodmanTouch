@@ -6,7 +6,14 @@
 # between Leap Motion and you, your company or other organization.             #
 ################################################################################
 
-import Leap, sys, thread, time
+# import Leap, sys, thread, time
+
+import os, sys, inspect
+src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
+sys.path.insert(0, lib_dir)
+import Leap
+
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 
 
