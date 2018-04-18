@@ -11,10 +11,14 @@
 import os
 import sys
 import inspect
+import csv
+
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
 sys.path.insert(0, lib_dir)
 import Leap
+
+global filename
 
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 
@@ -25,10 +29,12 @@ class SampleListener(Leap.Listener):
     state_names = ['STATE_INVALID', 'STATE_START', 'STATE_UPDATE', 'STATE_END']
 
     def on_init(self, controller):
-        print "Initialized"
+        print
+        "Initialized"
 
     def on_connect(self, controller):
-        print "Connected"
+        print
+        "Connected"
 
         # Enable gestures
         controller.enable_gesture(Leap.Gesture.TYPE_CIRCLE)
@@ -38,31 +44,47 @@ class SampleListener(Leap.Listener):
 
     def on_disconnect(self, controller):
         # Note: not dispatched when running in a debugger.
-        print "Disconnected"
+        print
+        "Disconnected"
 
     def on_exit(self, controller):
-        print "Exited"
+        print
+        "Exited"
 
     def on_frame(self, controller):
         # Get the most recent frame and report some basic information
         frame = controller.frame()
 
-
         # print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d, tools: %d, gestures: %d" % (
         #       frame.id, frame.timestamp, len(frame.hands), len(frame.fingers), len(frame.tools), len(frame.gestures()))
-
+        #
         # # Get hands
-        # for hand in frame.hands:
-        #
-        #     handType = "Left hand" if hand.is_left else "Right hand"
-        #
-        #     print "  %s, id %d, position: %s" % (
-        #         handType, hand.id, hand.palm_position)
-        #
-        #     # Get the hand's normal vector and direction
-        #     normal = hand.palm_normal
-        #     direction = hand.direction
-        #
+        for hand in frame.hands:
+            handType = "Left hand" if hand.is_left else "Right hand"
+
+            # filename = ""
+            # line = ""
+
+            # if hand.is_left:
+            #     filename = "left.txt"
+            # else:
+            #     filename = "right.txt"
+
+            line = "%s,%s,%s" % (hand.palm_position.x,
+                                 hand.palm_position.y, hand.palm_position.z)
+
+            # open(filename, 'w').close()
+            # print(filename)
+            with open(filename, 'a') as f:
+                f.write(line)
+                f.write('\n')
+
+            print "%s, id %d, position: %s" % (handType, hand.id, hand.palm_position)
+
+            # Get the hand's normal vector and direction
+            normal = hand.palm_normal
+            direction = hand.direction
+
         #     # Calculate the hand's pitch, roll, and yaw angles
         #     print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
         #         direction.pitch * Leap.RAD_TO_DEG,
@@ -93,22 +115,20 @@ class SampleListener(Leap.Listener):
         #                 bone.prev_joint,
         #                 bone.next_joint,
         #                 bone.direction)
-
-        tool = frame.tools.frontmost
-
-        # Get tools
-        for tool in frame.tools:
-
-            print "  Tool id: %d, position: %s, direction: %s" % (
-                tool.id, tool.tip_position, tool.direction)
-
+        #
+        # # Get tools
+        # for tool in frame.tools:
+        #
+        #     print "  Tool id: %d, position: %s, direction: %s" % (
+        #         tool.id, tool.tip_position, tool.direction)
+        #
         # # Get gestures
         # for gesture in frame.gestures():
         #     if gesture.type == Leap.Gesture.TYPE_CIRCLE:
         #         circle = CircleGesture(gesture)
         #
         #         # Determine clock direction using the angle between the pointable and the circle normal
-        #         if circle.pointable.direction.angle_to(circle.normal) <= Leap.PI/2:
+        #         if circle.pointable.direction.angle_to(circle.normal) <= Leap.PI / 2:
         #             clockwiseness = "clockwise"
         #         else:
         #             clockwiseness = "counterclockwise"
@@ -116,33 +136,36 @@ class SampleListener(Leap.Listener):
         #         # Calculate the angle swept since the last frame
         #         swept_angle = 0
         #         if circle.state != Leap.Gesture.STATE_START:
-        #             previous_update = CircleGesture(controller.frame(1).gesture(circle.id))
-        #             swept_angle =  (circle.progress - previous_update.progress) * 2 * Leap.PI
+        #             previous_update = CircleGesture(
+        #                 controller.frame(1).gesture(circle.id))
+        #             swept_angle = (circle.progress -
+        #                            previous_update.progress) * 2 * Leap.PI
         #
         #         print "  Circle id: %d, %s, progress: %f, radius: %f, angle: %f degrees, %s" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 circle.progress, circle.radius, swept_angle * Leap.RAD_TO_DEG, clockwiseness)
+        #             gesture.id, self.state_names[gesture.state],
+        #             circle.progress, circle.radius, swept_angle * Leap.RAD_TO_DEG, clockwiseness)
         #
         #     if gesture.type == Leap.Gesture.TYPE_SWIPE:
         #         swipe = SwipeGesture(gesture)
         #         print "  Swipe id: %d, state: %s, position: %s, direction: %s, speed: %f" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 swipe.position, swipe.direction, swipe.speed)
+        #             gesture.id, self.state_names[gesture.state],
+        #             swipe.position, swipe.direction, swipe.speed)
         #
         #     if gesture.type == Leap.Gesture.TYPE_KEY_TAP:
         #         keytap = KeyTapGesture(gesture)
         #         print "  Key Tap id: %d, %s, position: %s, direction: %s" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 keytap.position, keytap.direction )
+        #             gesture.id, self.state_names[gesture.state],
+        #             keytap.position, keytap.direction)
         #
         #     if gesture.type == Leap.Gesture.TYPE_SCREEN_TAP:
         #         screentap = ScreenTapGesture(gesture)
         #         print "  Screen Tap id: %d, %s, position: %s, direction: %s" % (
-        #                 gesture.id, self.state_names[gesture.state],
-        #                 screentap.position, screentap.direction )
+        #             gesture.id, self.state_names[gesture.state],
+        #             screentap.position, screentap.direction)
 
         # if not (frame.hands.is_empty and frame.gestures().is_empty):
-        #     print ""
+        #     print
+        #     ""
 
     def state_string(self, state):
         if state == Leap.Gesture.STATE_START:
@@ -166,11 +189,17 @@ def main():
     # controller.config.set("tracking_tool_enabled", True)
     # controller.config.save()
 
+    global filename
+    filename = raw_input("Please enter filename to write to: ")
+    print("filename is")
+    print filename
+
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
 
     # Keep this process running until Enter is pressed
-    print "Press Enter to quit..."
+    print
+    "Press Enter to quit..."
     try:
         sys.stdin.readline()
     except KeyboardInterrupt:
