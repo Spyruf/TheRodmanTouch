@@ -18,9 +18,9 @@ lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
 sys.path.insert(0, lib_dir)
 import Leap
 
-global filename
-
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
+
+global filename
 
 
 class SampleListener(Leap.Listener):
@@ -79,7 +79,8 @@ class SampleListener(Leap.Listener):
                 f.write(line)
                 f.write('\n')
 
-            print "%s, id %d, position: %s" % (handType, hand.id, hand.palm_position)
+            print
+            "%s, id %d, position: %s" % (handType, hand.id, hand.palm_position)
 
             # Get the hand's normal vector and direction
             normal = hand.palm_normal
@@ -192,7 +193,8 @@ def main():
     global filename
     filename = raw_input("Please enter filename to write to: ")
     print("filename is")
-    print filename
+    print
+    filename
 
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
